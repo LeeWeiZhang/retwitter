@@ -16,6 +16,8 @@ class ProfileController extends Controller
 
     	$is_edit_profile = false;
     	$is_following = false;
+        $following_count = 0;
+        $is_follow_button = false;
 
     	if (Auth::check()) {
 	        $me = Auth::user();

@@ -45,4 +45,32 @@ class User extends Authenticatable
         return $this->belongsToMany('App\User', 'followers','user_id','follower_user_id')->withTimestamps();
     }
 
+    public function tweets()
+    {
+        return $this->hasMany('App\Tweet','user_id','id');
+    }
+
+    /**
+     * Get timeline.
+     */
+    public function timeline()
+    {
+        $following = $this->following()->with(['tweets' => function($query) {
+            $query->orderBy('created_at', 'desc');
+            $query->orderBy('id', 'desc');
+            $query->paginate(10);
+        }])->get();
+
+
+        $timeline = $following->flatmap(function ($values) {
+            return $values->tweets;
+        });
+
+        $sorted = $timeline->sortByDesc(function ($tweet) {
+            return $tweet->created_at;
+        });
+
+        return $sorted->values()->all();
+    }
+
 }
